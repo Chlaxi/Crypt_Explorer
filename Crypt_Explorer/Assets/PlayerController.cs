@@ -1,12 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController2D))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Attack")]
+    [SerializeField] private float attackOffset;
+    [SerializeField] private Rigidbody2D Projectile;
+    [SerializeField] private float projectileSpeed;
+    [SerializeField] private Slider staminaSlider;
+    [SerializeField] private float attackSpeed = 1f;
+    private float _attackTimer;
+    private bool canAttack = true;
+
+
     [SerializeField] private float speed = 2;
-    [SerializeField] float velocity;
+    private float velocity;
+
+
     [SerializeField] private Animator animator;
     [SerializeField] private Rigidbody2D rigidbody;
     [SerializeField] private CharacterController2D charController;
@@ -21,6 +34,7 @@ public class PlayerController : MonoBehaviour
         if (rigidbody == null)
             rigidbody = GetComponent<Rigidbody2D>();
 
+       
     }
 
     private void Update()
@@ -32,6 +46,21 @@ public class PlayerController : MonoBehaviour
             isJumping = true;
             animator.SetTrigger("Jump");
         }
+
+        if (Input.GetButtonDown("Attack")){
+            Attack();
+        }
+
+        if (!canAttack)
+        {
+            staminaSlider.value = _attackTimer;
+            _attackTimer -= Time.deltaTime;
+            if (_attackTimer <= 0)
+            {
+
+                canAttack = true;
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -42,6 +71,25 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsFalling", true);
         else
             animator.SetBool("IsFalling", false);
+    }
+
+    private void Attack()
+    {
+        if (!canAttack)
+            return;
+
+        //Actual attack.
+
+        Vector3 attackPoint = transform.position;
+        attackPoint.x += charController.GetDirection() * attackOffset;
+        Debug.Log(attackPoint);
+        Rigidbody2D _projectile = Instantiate(Projectile, attackPoint , Quaternion.identity);
+        _projectile.AddForce(new Vector2(projectileSpeed * charController.GetDirection() /100, 0));
+
+        Debug.Log("Attack!");
+
+        canAttack = false;
+        _attackTimer = attackSpeed;
     }
 
     public void OnLand()

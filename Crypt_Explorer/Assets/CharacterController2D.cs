@@ -147,4 +147,16 @@ public class CharacterController2D : MonoBehaviour
 		theScale.x *= -1;
 		transform.localScale = theScale;
 	}
+
+	/// <summary>
+	/// Returns the normalised direction on the x-axis (1 = right)
+	/// </summary>
+	/// <returns></returns>
+	public int GetDirection()
+	{
+		if (m_FacingRight)
+			return 1;
+
+		return -1;
+	}
 }
