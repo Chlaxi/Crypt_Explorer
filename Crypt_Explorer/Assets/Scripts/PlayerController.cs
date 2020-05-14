@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,9 +8,8 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [Header("Attack")]
-    [SerializeField] private float attackOffset;
+    [SerializeField] private Vector2 attackOffset;
     [SerializeField] private Rigidbody2D Projectile;
-    [SerializeField] private float projectileSpeed;
     [SerializeField] private Slider staminaSlider;
     [SerializeField] private float attackSpeed = 1f;
     private float _attackTimer;
@@ -57,7 +57,6 @@ public class PlayerController : MonoBehaviour
             _attackTimer -= Time.deltaTime;
             if (_attackTimer <= 0)
             {
-
                 canAttack = true;
             }
         }
@@ -80,11 +79,9 @@ public class PlayerController : MonoBehaviour
 
         //Actual attack.
 
-        Vector3 attackPoint = transform.position;
-        attackPoint.x += charController.GetDirection() * attackOffset;
-        Debug.Log(attackPoint);
-        Rigidbody2D _projectile = Instantiate(Projectile, attackPoint , Quaternion.identity);
-        _projectile.AddForce(new Vector2(projectileSpeed * charController.GetDirection() /100, 0));
+
+
+        Rigidbody2D _projectile = Instantiate(Projectile, GetAttackPoint() , transform.rotation);
 
         Debug.Log("Attack!");
 
@@ -92,10 +89,23 @@ public class PlayerController : MonoBehaviour
         _attackTimer = attackSpeed;
     }
 
+    public Vector3 GetAttackPoint()
+    {
+        Vector3 attackPoint = transform.position;
+        attackPoint.y += attackOffset.y;
+        attackPoint.x += charController.GetDirection() * attackOffset.x;
+        return attackPoint;
+    }
+
     public void OnLand()
     {
-        Debug.Log("Landed");
         animator.SetBool("IsFalling", false);
         isJumping = false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(GetAttackPoint(), 0.1f);
     }
 }
