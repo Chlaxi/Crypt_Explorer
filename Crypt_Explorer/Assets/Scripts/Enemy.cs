@@ -12,8 +12,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Collider2D collider;
     [SerializeField] private Rigidbody2D rigidbody;
+    private EnemyAI AI;
     private void Start()
     {
+        AI = GetComponent<EnemyAI>();
         health = maxHealth;
     }
 
@@ -32,8 +34,11 @@ public class Enemy : MonoBehaviour
 
     protected void Die()
     {
-        rigidbody.simulated = false;
-        collider.enabled = false;
+        rigidbody.gravityScale = 1;
+        AI.ClearPath();
+        AI.AIEnabled = false;
+        //rigidbody.simulated = false;
+        //collider.enabled = false;
         Debug.Log("Dead");
         
         //Play death animation
